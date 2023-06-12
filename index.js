@@ -52,6 +52,13 @@ async function run() {
         res.send(result)
     })
 
+    app.get('/aprovedcalsses/:status', async(req,res)=>{
+        const status=req.params.status
+        const query={status:status}
+        const result=await classesCollection.find(query).toArray()
+        res.send(result)
+    })
+
 
 
 
