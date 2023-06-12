@@ -33,9 +33,8 @@ async function run() {
       // Connect the client to the server	(optional starting in v4.7)
       await client.connect();
 
-      const usersCollection = client.db("harmonyDB").collection("users");
-
-
+      const usersCollection = client.db("harmonyDB").collection("users"); 
+      const classesCollection = client.db("harmonyDB").collection("classes"); 
 
       app.post('/users', async(req, res)=>{
         const users=req.body
@@ -45,6 +44,11 @@ async function run() {
             return res.send({message: 'user exist'})
         }
         const result=await usersCollection.insertOne(users)
+        res.send(result)
+    })
+
+    app.get('/popularcalsses', async(req,res)=>{
+        const result=await classesCollection.find().toArray()
         res.send(result)
     })
 
