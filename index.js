@@ -63,7 +63,7 @@ async function run() {
         //JWT
         app.post('/jwt', async (req, res) => {
             const user = req.body
-            const token = jwt.sign(user, process.env.JWT_TOKEN, { expiresIn: '1h' })
+            const token = jwt.sign(user, process.env.JWT_TOKEN, { expiresIn: '2h' })
             res.send({ token })
         })
 
@@ -71,6 +71,34 @@ async function run() {
             const result= await usersCollection.find().toArray()
             res.send(result)
         })
+
+        //check Admin
+        app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+      
+            if (req.decoded.email !== email) {
+              res.send({ admin: false })
+            }
+      
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            const result = { admin: user?.role === 'admin' }
+            res.send(result);
+          })
+
+          //check instructor
+        app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+      
+            if (req.decoded.email !== email) {
+              res.send({ instructor: false })
+            }
+      
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            const result = { instructor: user?.role === 'instructor' }
+            res.send(result);
+          })
 
         app.post('/users', async (req, res) => {
             const users = req.body
