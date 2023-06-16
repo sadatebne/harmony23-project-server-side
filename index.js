@@ -61,6 +61,7 @@ async function run() {
         const usersCollection = client.db("harmonyDB").collection("users");
         const classesCollection = client.db("harmonyDB").collection("classes");
         const cartsCollection = client.db("harmonyDB").collection("carts");
+        const paymentCollection = client.db("harmonyDB").collection("payments");
 
 
         //JWT
@@ -258,6 +259,13 @@ async function run() {
               res.status(500).send("An error occurred while processing the payment.");
             }
           });
+
+          //payment
+          app.post('/payment', async(req,res)=>{
+            const payment =req.body
+            const result=await paymentCollection.insertOne(payment)
+            res.send(result)
+          })
 
 
 
