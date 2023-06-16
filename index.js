@@ -2,18 +2,21 @@ const express = require('express')
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 3000
+//dotenv
+require('dotenv').config()
 //jwt
 const jwt = require('jsonwebtoken');
 //STRIPE
 const stripe = require('stripe')(process.env.STRIPE_KEY)
+
 //DB
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-//dotenv
-require('dotenv').config()
+const { default: Stripe } = require('stripe');
 
 //middleware
 app.use(cors())
 app.use(express.json())
+
 
 //jwt middleware
 const verifyJWT = (req, res, next) => {
@@ -155,8 +158,8 @@ async function run() {
         })
 
         app.get('/myclass/:email', async (req, res) => {
-            const email = req.params.email
-            const query = { email: email }
+            const email=req.params.email
+            const query={email:email}
             const result = await classesCollection.find(query).toArray()
             res.send(result)
         })
@@ -216,11 +219,11 @@ async function run() {
 
         app.get('/carts/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
-            const query = { course_id: id };
-            console.log(query)
-            const result = await cartsCollection.find(query)
-            console.log(result)
+            //console.log(id);
+            const query = { _id:new ObjectId(id) };
+            //console.log(query)
+            const result = await cartsCollection.find(query).toArray()
+           // console.log(result)
             res.send(result);
         });
 
@@ -233,22 +236,28 @@ async function run() {
         })
 
         //payment-intent
-        app.post("/create-payment-intent", async (req, res) => {
+        app.post("/create-payment-intent", verifyJWT, async (req, res) => {
             const { price } = req.body;
-            const amount = price * 100
-
-            // Create a PaymentIntent with the order amount and currency
-            const paymentIntent = await stripe.paymentIntents.create({
+            console.log(price)
+            const amount = price * 100;
+            console.log(amount);
+          
+            try {
+              // Create a PaymentIntent with the order amount and currency
+              const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
                 currency: "usd",
                 payment_method_types: ["card"]
-            });
-
-            res.send({
+              });
+          
+              res.send({
                 clientSecret: paymentIntent.client_secret,
-            });
-
-        })
+              });
+            } catch (error) {
+              console.error("Stripe API error:", error);
+              res.status(500).send("An error occurred while processing the payment.");
+            }
+          });
 
 
 
