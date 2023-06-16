@@ -228,6 +228,16 @@ async function run() {
             res.send(result);
         });
 
+        app.patch('/carts/:id', async(req,res)=>{
+            const id=req.params.id
+            const filter={_id: new ObjectId(id)}
+            const updateDoc={
+                $inc: { Students: 1, availableSeats: -1 },
+            }
+            const result=await classesCollection.updateOne(filter,updateDoc)
+            res.send(result)
+        })
+
 
         app.delete('/carts/:id', async (req, res) => {
             const id = req.params.id
@@ -239,9 +249,7 @@ async function run() {
         //payment-intent
         app.post("/create-payment-intent", verifyJWT, async (req, res) => {
             const { price } = req.body;
-            console.log(price)
             const amount = price * 100;
-            console.log(amount);
           
             try {
               // Create a PaymentIntent with the order amount and currency
