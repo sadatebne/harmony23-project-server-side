@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        //await client.connect();
 
         const usersCollection = client.db("harmonyDB").collection("users");
         const classesCollection = client.db("harmonyDB").collection("classes");
@@ -185,6 +185,36 @@ async function run() {
             res.send(result)
         })
 
+        app.patch('/classes/denied/:id', async (req, res) => {
+
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    status: 'denied'
+                }
+            };
+
+            const result = await classesCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
+        app.patch('/classes/feedback/:id', async (req, res) => {
+
+            const id = req.params.id
+            const data=req.body
+            console.log(id,data)
+            const filter = { _id: new ObjectId(id) }
+             const updateDoc = {
+                 $set: {
+                      feedback:data.feedback
+                 }
+             };
+
+             const result = await classesCollection.updateOne(filter, updateDoc)
+             res.send(result)
+        })
+
         app.get('/aprovedclasses/:status', async (req, res) => {
             const status = req.params.status
             const query = { status: status }
@@ -285,7 +315,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+       // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
